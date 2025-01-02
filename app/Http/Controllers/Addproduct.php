@@ -10,7 +10,42 @@ class Addproduct extends Controller
 {
 
 
+  //update product
+  function updateProduct($id, Request $request)
+  {
 
+    $product = Product::findorFail($id);
+
+
+
+    $rule = [
+      "productName" => "required",
+      "sku" => "required"
+    ];
+
+    $validator = Validator::make($request->all(), $rule);
+
+    if ($validator->fails()) {
+
+      return redirect(route("product.edit", $id))->withInput()->withErrors($validator);
+    }
+
+    $product->productName = $request->productName;
+    $product->sku = $request->sku;
+    $product->save();
+    return redirect("/admin/productList")->with("success", "Updated");
+  }
+
+
+  //delete product
+  function deleteProduct($id)
+  {
+
+    $product = Product::findorFail($id);
+    $product->delete();
+
+    return redirect("/admin/productList")->with("success", "Deleted Successfuly");
+  }
 
 
 
@@ -37,7 +72,7 @@ class Addproduct extends Controller
 
 
     if ($validator->fails()) {
-      return redirect("/")->withInput()->withErrors($validator);
+      return redirect("/admin/addProduct")->withInput()->withErrors($validator);
     }
 
     $product = new Product();
@@ -45,11 +80,11 @@ class Addproduct extends Controller
     $product->sku = $request->sku;
 
     if (Product::where('sku', $product->sku)->exists()) {
-      return redirect("productList")->with("fail", "already Stored");
+      return redirect("/admin/productList")->with("fail", "already Stored");
     }
 
     $product->save();
 
-    return redirect("productList")->with("success", "got data");
+    return redirect("/admin/productList")->with("success", "got data");
   }
 }
